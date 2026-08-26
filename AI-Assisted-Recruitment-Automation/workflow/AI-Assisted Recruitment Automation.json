@@ -1,0 +1,729 @@
+{
+  "name": "AI-Assisted Recruitment Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Receives the candidate application.",
+        "formDescription": "Receives the candidate application.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Phone",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Resume",
+              "fieldType": "textarea",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Experience Years",
+              "fieldType": "number",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Education",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Cover Letter",
+              "fieldType": "textarea"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        -624,
+        -32
+      ],
+      "id": "fdee22ab-ad9e-41a1-9073-805476914d88",
+      "name": "On form submission",
+      "webhookId": "0933377b-656c-41bd-afc4-7005b58c5785"
+    },
+    {
+      "parameters": {
+        "tableId": "candidates",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "name",
+              "fieldValue": "={{ $json.Name }}"
+            },
+            {
+              "fieldId": "email",
+              "fieldValue": "={{$json.Email}}"
+            },
+            {
+              "fieldId": "phone",
+              "fieldValue": "={{$json.Phone}}"
+            },
+            {
+              "fieldId": "resume",
+              "fieldValue": "={{$json.Resume}}"
+            },
+            {
+              "fieldId": "experience_years",
+              "fieldValue": "={{ $json[\"Experience Years\"] }}"
+            },
+            {
+              "fieldId": "education",
+              "fieldValue": "={{$json.Education}}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "Pending Review"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -496,
+        -32
+      ],
+      "id": "a62874eb-3961-44e2-a8b5-ffb5f5bee0ca",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Rnt7J3sTaXG5r2pi",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e6ca399d-8fd3-46c4-8f73-6fc7202f5863",
+              "name": "candidate_id",
+              "value": "={{$json.id}}",
+              "type": "number"
+            },
+            {
+              "id": "b5b71e61-ecdf-465d-8a27-e7d1fcce7ec1",
+              "name": "candidate_name",
+              "value": "={{$json.name}}",
+              "type": "string"
+            },
+            {
+              "id": "3ac97a7f-aa73-419e-ae8c-2d3137f794bb",
+              "name": "candidate_email",
+              "value": "={{$json.email}}",
+              "type": "string"
+            },
+            {
+              "id": "5191a85f-6303-45cf-beaf-a8f9feb7d8e0",
+              "name": "candidate_phone",
+              "value": "={{$json.phone}}",
+              "type": "string"
+            },
+            {
+              "id": "b117d8fc-10ea-476a-9de6-58c8017bfdf8",
+              "name": "resume_text",
+              "value": "={{$json.resume}}",
+              "type": "string"
+            },
+            {
+              "id": "9bbb03a3-6e1a-436e-936a-02d92a694091",
+              "name": "experience_years",
+              "value": "={{Number($json.experience_years || 0)}}",
+              "type": "number"
+            },
+            {
+              "id": "7a61e1c9-75fd-476a-a46d-3fd7109a0f45",
+              "name": "education",
+              "value": "={{$json.education}}",
+              "type": "string"
+            },
+            {
+              "id": "af3846ce-92c3-4f52-abe5-d7e4c9d27392",
+              "name": "cover_letter",
+              "value": "={{$json.cover_letter || \"\"}}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -368,
+        -32
+      ],
+      "id": "954ecd3e-4be0-4091-8850-353eadb62a4c",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"candidate\": {\n      \"type\": \"object\",\n      \"properties\": {\n         \"id\": {\n          \"type\": \"number\"\n        },\n        \"name\": {\n          \"type\": \"string\"\n        },\n        \"email\": {\n          \"type\": \"string\"\n        }\n      },\n      \"required\": [\n        \"id\",\n        \"name\",\n        \"email\"\n      ]\n    },\n    \"skills\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"experience_years\": {\n      \"type\": \"number\"\n    },\n    \"score\": {\n      \"type\": \"number\"\n    },\n    \"recommendation\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"shortlist\",\n        \"reject\",\n        \"review\"\n      ]\n    },\n    \"reason\": {\n      \"type\": \"string\"\n    },\n    \"matched_requirements\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"missing_requirements\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    }\n  },\n  \"required\": [\n    \"candidate\",\n    \"skills\",\n    \"experience_years\",\n    \"score\",\n    \"recommendation\",\n    \"reason\",\n    \"matched_requirements\",\n    \"missing_requirements\"\n  ]\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -128,
+        128
+      ],
+      "id": "2b9825b4-9c49-4364-9698-d499efd9675c",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.6-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -240,
+        144
+      ],
+      "id": "3c14b122-4e2a-4e6b-afe7-1b0a2869b69b",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "FXNPPWUzNEuCZ3Yg",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ce501232-b355-41ff-a713-637aa4faef31",
+              "leftValue": "={{$json.human_decision}}",
+              "rightValue": "shortlist",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        656,
+        -32
+      ],
+      "id": "fbd5b78b-0d3d-4621-bfa6-12427dd63d47",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "173b15dd-b9fd-4953-bafd-ad825ec01a2a",
+              "name": "status",
+              "value": "Shortlisted",
+              "type": "string"
+            },
+            {
+              "id": "a5be5487-f120-42af-92e8-6bfff231d082",
+              "name": "final_decision",
+              "value": "shortlist",
+              "type": "string"
+            },
+            {
+              "id": "b2b0bb82-be29-41e2-8485-164f233a9b41",
+              "name": "human_decision",
+              "value": "={{$json.human_decision}}",
+              "type": "string"
+            },
+            {
+              "id": "20b2e0b3-9260-4a07-a3ff-176eb31efe3a",
+              "name": "reviewed_at",
+              "value": "={{new Date().toISOString()}}",
+              "type": "string"
+            },
+            {
+              "id": "02d30f6a-060b-408f-962c-83a5892474c7",
+              "name": "email_subject",
+              "value": "Application Update",
+              "type": "string"
+            },
+            {
+              "id": "e5c2b423-bd2b-48bf-86fd-f1fcd601f6b7",
+              "name": "email_body",
+              "value": "=Dear {{ $json.body.Name }},  Thank you for applying for the position.  We are pleased to inform you that your application has progressed to the next stage of our recruitment process.  Our recruitment team will contact you regarding the next steps.  Regards, Recruitment Team",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        800,
+        -96
+      ],
+      "id": "5ade5a60-d0dd-4216-bf80-d046708523f5",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "da769a2a-43ad-4bd1-82c2-0c54d340c1cc",
+              "name": "status",
+              "value": "Rejected",
+              "type": "string"
+            },
+            {
+              "id": "fa950941-c06d-48cf-bbe6-65d6a88782f1",
+              "name": "final_decision",
+              "value": "reject",
+              "type": "string"
+            },
+            {
+              "id": "2bbbd651-a551-403d-a2b8-ad7d54793bdc",
+              "name": "human_decision",
+              "value": "={{$json.human_decision}}",
+              "type": "string"
+            },
+            {
+              "id": "452f2519-fae3-4396-bd1e-3abd8145882e",
+              "name": "reviewed_at",
+              "value": "={{new Date().toISOString()}}",
+              "type": "string"
+            },
+            {
+              "id": "84081dc2-ffbe-4569-ab11-654ddcc45dc4",
+              "name": "email_subject",
+              "value": "Application Update",
+              "type": "string"
+            },
+            {
+              "id": "6ff99738-6f83-42a2-9324-e1a09146c931",
+              "name": "email_body",
+              "value": "=Dear {{$json.candidate_name}},  Thank you for your interest in the position and for taking the time to submit your application.  After careful consideration, we will not be progressing your application to the next stage at this time.  We appreciate your interest and wish you success in your future opportunities.  Regards, Recruitment Team",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        800,
+        48
+      ],
+      "id": "90c77fb3-50c8-4c54-b7c6-b6e302ef4a0b",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "=Application Update",
+        "message": "=Dear {{ $json.name }},\n\nThank you for your interest in the position and for taking the time to submit your application.\n\nAfter careful consideration, we will not be progressing your application to the next stage at this time.\n\nWe appreciate your interest and wish you success in your future opportunities.\n\nRegards,\nRecruitment Team",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        928,
+        48
+      ],
+      "id": "f26781c9-9754-4655-bb5e-6b20d7cd3a23",
+      "name": "Send a message1",
+      "webhookId": "0b33ac30-7025-45a1-a161-892f7d829957",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "rqaVJCGXOb2guD2A",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e6634bf4-285a-4634-a214-8fdbd11fa31b",
+              "name": "human_decision",
+              "value": "={{ $json.human_decision.toLowerCase() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        528,
+        -32
+      ],
+      "id": "23266e9c-83b8-4f4b-b840-6892ff416e96",
+      "name": "Normalize Human Decision"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -128,
+        272
+      ],
+      "id": "f25c6cb5-5434-493a-803e-694da87435e5",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "FXNPPWUzNEuCZ3Yg",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.body.Email }}",
+        "subject": "=Application Update",
+        "message": "=Dear {{$json.body.Name}},\n\nThank you for applying for the position.\n\nWe are pleased to inform you that your application has progressed to the next stage of our recruitment process.\n\nOur recruitment team will contact you regarding the next steps.\n\nRegards,\nRecruitment Team",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        928,
+        -96
+      ],
+      "id": "42384eb8-f59b-4c0f-8772-3627ad6d53aa",
+      "name": "Send a message",
+      "webhookId": "0b33ac30-7025-45a1-a161-892f7d829957",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "rqaVJCGXOb2guD2A",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const decision = String(\n  $json.body?.human_decision ??\n  $json.human_decision ??\n  $json.decision ??\n  \"\"\n).trim().toLowerCase();\n\nif (decision !== \"shortlist\" && decision !== \"reject\") {\n  throw new Error(\n    `Invalid human decision: \"${decision}\". Expected shortlist or reject.`\n  );\n}\n\nreturn [\n  {\n    json: {\n      ...$json,\n      human_decision: decision,\n      review_status: \"completed\"\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        -32
+      ],
+      "id": "a11f7539-a784-4e1d-87a7-270c41a01026",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI recruitment assistant.  Your job is to analyze a candidate against the defined job requirements.  You are NOT the final decision maker.  The final hiring decision must be made by an authorized human reviewer.  Evaluate only job relevant information.  Do not evaluate or infer: gender race religion age disability marital status political beliefs photographs other unrelated personal characteristics  Do not invent qualifications or experience.  JOB POSITION  Junior Machine Learning Engineer  REQUIRED SKILLS  Python Machine Learning NumPy Pandas Scikit Learn  PREFERRED SKILLS  PyTorch TensorFlow FastAPI  MINIMUM EXPERIENCE  1 year  EDUCATION  Computer Science Artificial Intelligence Data Science Software Engineering or an equivalent relevant field  CANDIDATE DATA  Candidate Name: {{$json.candidate_name}}  Email: {{$json.candidate_email}}  Experience: {{$json.experience_years}}  Education: {{$json.education}}  Resume: {{$json.resume_text}}  Cover Letter: {{$json.cover_letter}}  Analyze the candidate.  Extract relevant skills.  Match the candidate against the job requirements.  Generate a score from 0 to 100.  Generate an AI recommendation.  The recommendation must be exactly one of:  shortlist reject review  Explain the recommendation using only evidence from the candidate data.  Remember:  The recommendation is advisory only.  An authorized human must make the final decision.",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are an AI recruitment assistant.  Your job is to analyze a candidate against the defined job requirements.  You are NOT the final decision maker.  The final hiring decision must be made by an authorized human reviewer.  Evaluate only job relevant information.  Do not evaluate or infer: gender race religion age disability marital status political beliefs photographs other unrelated personal characteristics  Do not invent qualifications or experience.  JOB POSITION  Junior Machine Learning Engineer  REQUIRED SKILLS  Python Machine Learning NumPy Pandas Scikit Learn  PREFERRED SKILLS  PyTorch TensorFlow FastAPI  MINIMUM EXPERIENCE  1 year  EDUCATION  Computer Science Artificial Intelligence Data Science Software Engineering or an equivalent relevant field  CANDIDATE DATA  Candidate Name: {{$json.candidate_name}}  Email: {{$json.candidate_email}}  Experience: {{$json.experience_years}}  Education: {{$json.education}}  Resume: {{$json.resume_text}}  Cover Letter: {{$json.cover_letter}}  Analyze the candidate.  Extract relevant skills.  Match the candidate against the job requirements.  Generate a score from 0 to 100.  Generate an AI recommendation.  The recommendation must be exactly one of:  shortlist reject review  Explain the recommendation using only evidence from the candidate data.  Remember:  The recommendation is advisory only.  An authorized human must make the final decision."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -240,
+        -32
+      ],
+      "id": "d9a56ec3-d446-478e-91c8-3283a76b81a6",
+      "name": "AI Analysis"
+    },
+    {
+      "parameters": {
+        "jsCode": "const skills = ($json.skills || []).map(skill =>\n  String(skill).toLowerCase().trim()\n);\n\nconst requiredSkills = [\n  \"python\",\n  \"machine learning\",\n  \"numpy\",\n  \"pandas\",\n  \"scikit learn\"\n];\n\nconst matchedSkills = requiredSkills.filter(skill =>\n  skills.includes(skill)\n);\n\nconst skillScore =\n  (matchedSkills.length / requiredSkills.length) * 100;\n\nconst experienceYears =\n  Number($json.experience_years || 0);\n\nconst experienceRequirementMet =\n  experienceYears >= 1;\n\nlet ruleScore = skillScore;\n\nif (experienceRequirementMet) {\n  ruleScore += 10;\n} else {\n  ruleScore -= 20;\n}\n\nruleScore = Math.max(\n  0,\n  Math.min(100, Math.round(ruleScore))\n);\n\nreturn [\n  {\n    json: {\n      ...$json,\n      rule_score: ruleScore,\n      matched_required_skills: matchedSkills,\n      required_skill_count: requiredSkills.length,\n      matched_skill_count: matchedSkills.length,\n      minimum_experience_met: experienceRequirementMet\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        16,
+        -32
+      ],
+      "id": "f07dc59c-230d-4567-8913-86bc61b634a7",
+      "name": "Rule Score"
+    },
+    {
+      "parameters": {
+        "jsCode": "const aiScore = Number($json.score || 0);\nconst ruleScore = Number($json.rule_score || 0);\n\nconst combinedScore = Math.round(\n  (aiScore * 0.4) +\n  (ruleScore * 0.6)\n);\n\nreturn [\n  {\n    json: {\n      ...$json,\n      combined_score: combinedScore\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        144,
+        -32
+      ],
+      "id": "abf8e0d7-6700-4166-a90c-2d6e5c56febb",
+      "name": "Combined Score"
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        272,
+        -32
+      ],
+      "id": "18deebe8-ba99-4eab-bbc3-93cc605fa4ee",
+      "name": "Wait",
+      "webhookId": "a7d02214-3fb7-401b-843e-54292c47ffb1"
+    }
+  ],
+  "pinData": {
+    "On form submission": [
+      {
+        "json": {
+          "id": 1,
+          "Name": "Ali Khan",
+          "Email": "ali.khan@example.com",
+          "Phone": "03001234567",
+          "Resume": "Ali Khan is a Python and Machine Learning developer with 2 years of experience. He has built machine learning classification and prediction systems using Python, NumPy, Pandas, Scikit Learn and PyTorch. He has developed REST APIs using FastAPI and has worked on data preprocessing, model training, evaluation and deployment. He completed a BS in Artificial Intelligence.",
+          "Experience Years": 2,
+          "Education": "BS Artificial Intelligence",
+          "Cover Letter": "I am applying for the Junior Machine Learning Engineer position. I have practical experience developing machine learning applications using Python, Scikit Learn, Pandas and NumPy",
+          "submittedAt": "2026-08-25T22:50:41.134-04:00",
+          "formMode": "test"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Analysis",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Analysis",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        []
+      ]
+    },
+    "Normalize Human Decision": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Normalize Human Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Analysis": {
+      "main": [
+        [
+          {
+            "node": "Rule Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rule Score": {
+      "main": [
+        [
+          {
+            "node": "Combined Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combined Score": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "4490aeac-7ddf-403f-ade7-5a8a760d9153",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c3cb54e1d540d3c0b04170702b697fe90c7d879be4a3aa2f62ed1a03c27d9596"
+  },
+  "nodeGroups": [],
+  "id": "du205Iu2pykCFbxi",
+  "tags": []
+}

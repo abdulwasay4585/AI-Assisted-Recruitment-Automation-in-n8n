@@ -1,0 +1,11 @@
+{
+    "Name": "Ali Khan",
+    "Email": "ali.khan@example.com",
+    "Phone": "03001234567",
+    "Resume": "Ali Khan is a Python and Machine Learning developer with 2 years of experience. He has built machine learning classification and prediction systems using Python, NumPy, Pandas, Scikit Learn and PyTorch. He has developed REST APIs using FastAPI and has worked on data preprocessing, model training, evaluation and deployment. He completed a BS in Artificial Intelligence.",
+    "Experience Years": 2,
+    "Education": "BS Artificial Intelligence",
+    "Cover Letter": "I am applying for the Junior Machine Learning Engineer position. I have practical experience developing machine learning applications using Python, Scikit Learn, Pandas and NumPy",
+    "submittedAt": "2026-08-25T22:50:41.134-04:00",
+    "human_decision": "shortlist"
+}
